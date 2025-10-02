@@ -51,10 +51,14 @@ class UserResponseSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
     full_name = serializers.ReadOnlyField()
+    time_offline = serializers.SerializerMethodField()
     
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'full_name', 'email', 'created_at', 'is_online')
+        fields = ('id', 'first_name', 'last_name', 'full_name', 'email', 'created_at', 'is_online', 'last_seen', 'time_offline')
+    
+    def get_time_offline(self, obj):
+        return obj.get_time_offline()
 
 
 class LoginSerializer(serializers.Serializer):
@@ -94,3 +98,16 @@ class LoginResponseSerializer(serializers.ModelSerializer):
     def get_refresh_token(self, obj):
         refresh = RefreshToken.for_user(obj)
         return str(refresh)
+
+
+class UserMeSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
+    full_name = serializers.ReadOnlyField()
+    time_offline = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'full_name', 'email', 'created_at', 'is_online', 'last_seen', 'last_login_time', 'time_offline')
+    
+    def get_time_offline(self, obj):
+        return obj.get_time_offline()
