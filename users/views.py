@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from .serializers import UserRegistrationSerializer, UserResponseSerializer, UserDetailSerializer
+from .serializers import UserRegistrationSerializer, UserResponseSerializer, UserDetailSerializer, LoginSerializer, LoginResponseSerializer
 
 User = get_user_model()
 
@@ -38,3 +38,23 @@ def get_user_by_id(request, user_id):
     return Response({
         'user': serializer.data
     }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_user(request):
+    serializer = LoginSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        response_serializer = LoginResponseSerializer(user)
+        
+        return Response({
+            'message': 'Login realizado com sucesso!',
+            'user': response_serializer.data
+        }, status=status.HTTP_200_OK)
+    
+    return Response({
+        'message': 'Erro ao fazer login',
+        'errors': serializer.errors
+    }, status=status.HTTP_400_BAD_REQUEST)

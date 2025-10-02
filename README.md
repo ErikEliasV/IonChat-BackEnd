@@ -92,6 +92,60 @@ Content-Type: application/json
 
 ---
 
+### 3. Login de Usuário
+
+**Endpoint:** `POST /api/users/login/`
+
+**Descrição:** Autentica um usuário e retorna tokens JWT.
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**Body:**
+```json
+{
+    "email": "joao@email.com",
+    "password": "minhasenha123"
+}
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+    "message": "Login realizado com sucesso!",
+    "user": {
+        "id": "9c8a57a6-c9d2-4415-9c79-93448957b5bd",
+        "first_name": "João",
+        "last_name": "Silva",
+        "full_name": "João Silva",
+        "email": "joao@email.com",
+        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+    }
+}
+```
+
+**Resposta de Erro (400):**
+```json
+{
+    "message": "Erro ao fazer login",
+    "errors": {
+        "non_field_errors": ["Credenciais inválidas."]
+    }
+}
+```
+
+**Validações:**
+- Email e senha são obrigatórios
+- Credenciais devem ser válidas
+- Usuário deve estar ativo
+- Access token válido por 3 dias
+- Refresh token válido por 7 dias
+
+---
+
 ## Exemplo de Uso
 
 ### cURL
@@ -112,4 +166,14 @@ curl -X POST http://localhost:8000/api/users/register/ \
 **Buscar Usuário por ID:**
 ```bash
 curl -X GET http://localhost:8000/api/users/9c8a57a6-c9d2-4415-9c79-93448957b5bd/
+```
+
+**Login de Usuário:**
+```bash
+curl -X POST http://localhost:8000/api/users/login/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "joao@email.com",
+    "password": "minhasenha123"
+  }'
 ```
