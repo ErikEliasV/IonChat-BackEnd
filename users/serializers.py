@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
@@ -54,3 +55,42 @@ class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'full_name', 'email', 'created_at', 'is_online')
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+        
+        if email and password:
+            user = authenticate(email=email, password=password)
+            if not user:
+                raise serializers.ValidationError('Credenciais inválidas.')
+            if not user.is_active:
+                raise serializers.ValidationError('Usuário desativado.')
+            attrs['user'] = user
+            return attrs
+        else:
+            raise serializers.ValidationError('Email e senha são obrigatórios.')
+
+
+class LoginResponseSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
+    full_name = serializers.ReadOnlyField()
+    access_token = serializers.SerializerMethodField()
+    refresh_token = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'full_name', 'email', 'access_token', 'refresh_token')
+        
+    def get_access_token(self, obj):
+        refresh = RefreshToken.for_user(obj)
+        return str(refresh.access_token)
+        
+    def get_refresh_token(self, obj):
+        refresh = RefreshToken.for_user(obj)
+        return str(refresh)
