@@ -45,3 +45,12 @@ class UserResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'email')
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
+    full_name = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'full_name', 'email', 'created_at', 'is_online')
